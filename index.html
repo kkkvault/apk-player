@@ -4,377 +4,317 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google-site-verification" content="qjo9-00DTn-WbuZDQlzy_6DepAlVYFPsLDWydOW5UQg" />
-<title>APK 플레이어 - PC·안드로이드·아이폰에서 APK 열어보기</title>
+<title>오늘급식표 — 학교 급식·시간표·D-day 한눈에</title>
+<meta name="description" content="학교를 검색하면 오늘 급식, 시간표, 수행평가 D-day를 한눈에 보여주는 무료 사이트. 전국 초·중·고등학교.">
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;background:#0f172a;color:#e2e8f0}
-header{padding:28px 20px 10px;max-width:1100px;margin:0 auto} h1{margin:0;font-size:28px} header p{color:#94a3b8;line-height:1.6}
-main{max-width:1100px;margin:0 auto;padding:10px 20px 40px}
-.card{background:#1e293b;border:1px solid #334155;border-radius:16px;padding:18px;margin:14px 0}
-.drop{border:2px dashed #38bdf8;border-radius:16px;padding:28px;text-align:center;cursor:pointer;background:#0b1220}
-.drop.drag{background:#164e63} .drop b{font-size:18px}
-button{background:#0ea5e9;color:#fff;border:0;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer;margin:4px 6px 4px 0}
-button.secondary{background:#334155} button:disabled{opacity:.5}
-input[type=text],input[type=file]{width:100%;padding:10px;border-radius:10px;border:1px solid #475569;background:#0f172a;color:#e2e8f0}
-.grid{display:grid;grid-template-columns:1fr 1.4fr;gap:14px} @media(max-width:800px){.grid{grid-template-columns:1fr}}
-.kv{line-height:1.9;word-break:break-all} .kv b{color:#7dd3fc}
-.badge{display:inline-block;background:#0e7490;color:#fff;border-radius:999px;padding:3px 10px;font-size:13px;margin-right:6px}
-.warn{background:#451a03;border:1px solid #f59e0b;border-radius:12px;padding:14px;line-height:1.7}
-.ok{background:#052e16;border:1px solid #22c55e;border-radius:12px;padding:14px;line-height:1.7}
-#playerWrap{background:#000;border-radius:12px;overflow:hidden;min-height:360px;position:relative}
-#playerFrame{width:100%;height:520px;border:0;background:#fff}
-#fileList{max-height:420px;overflow:auto;line-height:1.5} #fileList div{padding:7px 8px;border-bottom:1px solid #334155;cursor:pointer} #fileList div:hover{background:#334155}
-#previewBox img{max-width:100%} #previewBox video,#previewBox audio{width:100%}
-pre{white-space:pre-wrap;word-break:break-all;background:#0f172a;padding:12px;border-radius:10px;max-height:360px;overflow:auto}
-.guide{display:grid;grid-template-columns:repeat(3,1fr);gap:12px} @media(max-width:800px){.guide{grid-template-columns:1fr}}
-.guide div{background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px;line-height:1.7}
-.small{color:#94a3b8;font-size:13px;line-height:1.6}
-img#appIcon{width:72px;height:72px;border-radius:16px;background:#fff;object-fit:contain}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;background:#f3f5f8;color:#1a2332}
+header{background:#12284b;color:#fff;padding:28px 20px 22px}header h1{margin:0;font-size:26px}header p{margin:8px 0 0;color:#c7d3e6;font-size:14px}
+main{max-width:860px;margin:0 auto;padding:18px 14px 60px}
+.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+h2{margin:0 0 12px;font-size:18px}h3{margin:14px 0 6px;font-size:15px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+input,select{padding:10px 12px;border:1px solid #ccd4e0;border-radius:10px;font-size:15px;flex:1;min-width:140px;background:#fff}
+button{padding:10px 16px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-size:15px;cursor:pointer}
+button.secondary{background:#e8edf4;color:#1a2332}button.small{padding:7px 11px;font-size:13px}
+.school-result{padding:10px 12px;border:1px solid #e1e6ee;border-radius:10px;margin-top:8px;cursor:pointer}
+.school-result:hover{border-color:#2563eb;background:#f0f5ff}
+.muted{color:#667085;font-size:13px;line-height:1.6}
+.dish{padding:6px 0;border-bottom:1px solid #f0f2f5}.dish:last-child{border-bottom:0}
+.allergy{color:#8a94a6;font-size:12px;margin-left:6px}
+table{width:100%;border-collapse:collapse}td,th{padding:9px 8px;border-bottom:1px solid #eef1f5;text-align:left;font-size:15px}th{color:#667085;width:70px}
+.pill{display:inline-block;background:#eef4ff;color:#1d4ed8;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700}
+.dday{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #eef1f5;align-items:center}
+.dday b{font-size:16px}.dday .left{line-height:1.4}
+.error{color:#b42318;background:#fef3f2;border-radius:10px;padding:10px 12px;font-size:14px}
+.ok{color:#067647;background:#ecfdf3;border-radius:10px;padding:10px 12px;font-size:14px}
+footer{color:#667085;font-size:12px;line-height:1.7;text-align:center;padding:20px}
+@media(max-width:560px){header h1{font-size:23px}}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 <header>
-<h1>APK 플레이어</h1>
-<p>PC, 안드로이드, 아이폰 어디서나 브라우저로 APK 파일을 열어보는 플레이어입니다.<br>
-파일은 서버로 올라가지 않고, 이 기기 안에서만 분석합니다. 웹으로 만든 APK(웹앱 형태)는 여기서 바로 플레이할 수 있습니다.</p>
+  <h1>오늘급식표</h1>
+  <p>학교 검색 한 번으로 오늘 급식, 시간표, 수행평가 D-day까지. 전국 초·중·고등학교, 무료.</p>
 </header>
 <main>
-<div class="card">
-<div class="drop" id="dropZone"><b>APK 파일을 여기에 드롭하거나 클릭해서 선택</b><p class="small">.apk 파일만 지원합니다. 용량이 클수록 분석이 오래 걸릴 수 있습니다. (권장 500MB 이하)</p></div>
-<input type="file" id="fileInput" accept=".apk" style="display:none">
-<p>
-<button id="sampleBtn">샘플 웹-APK로 테스트하기</button>
-<button class="secondary" id="clearBtn">지우기</button>
-</p>
-<p id="status" class="small">아직 파일이 없습니다. 샘플 버튼을 누르면 실제 APK 없이도 플레이 방식을 바로 확인할 수 있습니다.</p>
-</div>
+  <section class="card" id="searchCard">
+    <h2>1. 학교 찾기</h2>
+    <div class="row">
+      <input id="schoolQuery" type="text" placeholder="학교 이름 입력 (예: 동래중학교)" autocomplete="off">
+      <button id="searchBtn" type="button">검색</button>
+    </div>
+    <div id="searchOut" class="muted" style="margin-top:10px">학교 이름을 입력하고 검색을 눌러주세요. 선택한 학교는 이 기기에 저장됩니다.</div>
+    <div id="savedSchool" style="margin-top:12px"></div>
+  </section>
 
-<div class="grid">
-<div class="card">
-<h2 style="margin-top:0">앱 정보</h2>
-<div style="display:flex;gap:14px;align-items:center"><img id="appIcon" alt="" style="display:none"><div><div id="appName" style="font-size:20px;font-weight:700">-</div><div id="appType" class="small">-</div></div></div>
-<div class="kv" style="margin-top:12px">
-<div>패키지: <b id="appPackage">-</b></div>
-<div>버전: <b id="appVersion">-</b></div>
-<div>파일 크기: <b id="appSize">-</b></div>
-<div>SHA-256: <b id="appSha">-</b></div>
-<div>최소 SDK / 대상 SDK: <b id="appSdk">-</b></div>
-<div>권한 개수: <b id="appPerm">-</b></div>
-<div>파일 개수: <b id="appFiles">-</b></div>
-</div>
-<div id="permBox" class="small" style="margin-top:10px"></div>
-</div>
+  <section class="card">
+    <h2>2. 날짜 · 학년 · 반</h2>
+    <div class="row">
+      <button id="prevDayBtn" type="button" class="secondary">이전 날</button>
+      <input id="dateInput" type="date">
+      <button id="nextDayBtn" type="button" class="secondary">다음 날</button>
+      <button id="todayBtn" type="button" class="secondary">오늘</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <select id="gradeSel" aria-label="학년">
+        <option value="1">1학년</option>
+        <option value="2" selected>2학년</option>
+        <option value="3">3학년</option>
+        <option value="4">4학년</option>
+        <option value="5">5학년</option>
+        <option value="6">6학년</option>
+      </select>
+      <select id="classSel" aria-label="반">
+        <option value="1" selected>1반</option><option value="2">2반</option><option value="3">3반</option>
+        <option value="4">4반</option><option value="5">5반</option><option value="6">6반</option>
+        <option value="7">7반</option><option value="8">8반</option><option value="9">9반</option>
+        <option value="10">10반</option><option value="11">11반</option><option value="12">12반</option>
+      </select>
+      <button id="loadBtn" type="button">급식·시간표 불러오기</button>
+      <button id="shareBtn" type="button" class="secondary">이 학교 링크 복사</button>
+    </div>
+    <p class="muted" style="margin:10px 0 0">시간표는 선택한 학년·반 기준으로 불러옵니다. 데이터 출처: 나이스 교육정보 개방 포털(NEIS Open API). 키 입력 없이 바로 조회됩니다.</p>
+  </section>
 
-<div class="card">
-<h2 style="margin-top:0">플레이어</h2>
-<div id="playerWrap"><iframe id="playerFrame" title="APK 웹 플레이어" sandbox="allow-scripts allow-modals allow-pointer-lock allow-forms"></iframe></div>
-<p>
-<button id="playBtn" disabled>웹 콘텐츠 플레이</button>
-<button class="secondary" id="newTabBtn" disabled>새 탭으로 열기</button>
-<button class="secondary" id="fsBtn">전체화면</button>
-</p>
-<p id="playerNote" class="small">웹앱 형태 APK가 아니면 플레이 버튼이 활성화되지 않습니다. 아래 안내를 확인하세요.</p>
-<div id="nativeBox" class="warn" style="display:none"></div>
-<div id="webOkBox" class="ok" style="display:none"></div>
-</div>
-</div>
+  <section class="card" id="mealCard">
+    <h2>오늘 급식 <span id="mealDateLabel" class="pill"></span></h2>
+    <div id="mealOut" class="muted">학교를 선택한 뒤 불러오기를 눌러주세요.</div>
+    <button id="weekBtn" type="button" class="secondary small" style="margin-top:12px">이번 주 급식 한눈에 보기</button>
+    <div id="weekOut" style="margin-top:12px"></div>
+  </section>
 
-<div class="card">
-<h2 style="margin-top:0">실제 실행 - 클라우드 안드로이드</h2>
-<p style="line-height:1.7">이게 진짜 플레이 부분이다. 브라우저 자체는 네이티브 APK를 못 돌리니까, APK를 클라우드 안드로이드에 올려서 그 화면을 브라우저로 스트리밍 받아 조작한다. PC, 아이폰 모두 브라우저만 있으면 된다. 대신 클라우드라서 무료 플랜은 분/세션 제한이 있고, 고사양 게임은 PC 에뮬레이터보다 느릴 수 있다.</p>
-<div class="warn"><b>주의:</b> 이 단계부터는 파일이 이 기기가 아니라 Appetize 서버로 전송된다. 위의 로컬 분석과 다르다. 개인 정보가 든 APK, 남의 유료 앱 APK는 올리지 마라. API 토큰은 이 브라우저의 localStorage에만 저장되고, 이 사이트에는 서버가 없어서 내가 볼 수 없다.</div>
-<p style="line-height:1.7"><b>1. 토큰 받기 (무료, 1번만):</b> Appetize 사이트에서 무료 계정을 만들고, 대시보드의 API Tokens에서 토큰을 발급받아 아래에 붙여넣는다. 2026년 기준 무료 플랜은 월 30분, 세션당 3분 제한이라는 안내가 있다. 정확한 현재 조건은 Appetize 요금 페이지에서 다시 확인해라.<br>
-<b>2. APK 선택:</b> 위에서 APK를 먼저 선택해라. 샘플 웹-APK는 진짜 안드로이드 앱이 아니라서 클라우드 업로드가 실패한다. 진짜 APK 파일로 테스트해라.<br>
-<b>3. 실행:</b> “클라우드에 업로드하고 실제 실행”을 누르면 업로드 후 클라우드 화면이 아래에 뜬다. 화면을 클릭/드래그해서 조작하면 된다.</p>
-<label class="small">Appetize API 토큰 (이 브라우저에만 저장)</label>
-<input type="password" id="cloudToken" placeholder="Appetize API 토큰을 여기에 붙여넣기" autocomplete="off">
-<p><button id="saveTokenBtn">토큰 저장</button><button class="secondary" id="clearTokenBtn">토큰 지우기</button></p>
-<label class="small">이미 업로드한 앱의 publicKey (대시보드에서 직접 올렸을 때)</label>
-<input type="text" id="cloudKey" placeholder="예: publicKey (없으면 비워두기)">
-<p>
-<label class="small">기기</label>
-<select id="cloudDevice" style="padding:10px;border-radius:10px;background:#0f172a;color:#e2e8f0;border:1px solid #475569">
-<option value="pixel7">pixel7</option><option value="pixel8">pixel8</option><option value="nexus9">nexus9</option><option value="nexus5">nexus5</option>
-</select>
-<label class="small">방향</label>
-<select id="cloudOrient" style="padding:10px;border-radius:10px;background:#0f172a;color:#e2e8f0;border:1px solid #475569">
-<option value="portrait">세로</option><option value="landscape">가로</option>
-</select>
-</p>
-<p>
-<button id="cloudUploadBtn">클라우드에 업로드하고 실제 실행</button>
-<button class="secondary" id="cloudEmbedBtn">publicKey로 바로 실행</button>
-<button class="secondary" id="cloudCloseBtn">클라우드 화면 닫기</button>
-</p>
-<p id="cloudStatus" class="small">아직 클라우드 세션이 없다.</p>
-<div id="cloudWrap" style="display:none;background:#000;border-radius:12px;overflow:hidden">
-<iframe id="cloudFrame" style="width:100%;height:640px;border:0;background:#000" allow="autoplay; fullscreen" title="클라우드 안드로이드"></iframe>
-</div>
-<p><a id="cloudLink" href="https://appetize.io/" target="_blank" rel="noopener" style="color:#7dd3fc">Appetize 새 탭으로 열기</a></p>
-<div id="cloudFallback" class="small" style="display:none"></div>
-<hr style="border-color:#334155">
-<h3 style="margin-bottom:6px">가입 없이 바로 해보고 싶으면 - ApkOnline</h3>
-<p style="line-height:1.7">가입 없이 쓸 수 있는 무료 클라우드 안드로이드도 있다. 아래 버튼으로 ApkOnline을 열고, 거기서 Run을 누른 뒤 파일 관리자에서 APK를 업로드해서 설치하면 된다. 단점: 안드로이드 8 수준의 오래된 이미지, 100MB 정도가 실질 한도, 광고가 많고, 세션을 닫으면 지워진다. 토큰이 없어서 우리 플레이어 안에 자동 임베드는 안 되고, 새 탭에서 직접 해야 한다.</p>
-<p><button class="secondary" id="apkOnlineBtn">ApkOnline 새 탭으로 열기 (가입 없음)</button></p>
-</div>
+  <section class="card" id="ttCard">
+    <h2>시간표</h2>
+    <div id="ttOut" class="muted">학교를 선택한 뒤 불러오기를 눌러주세요.</div>
+  </section>
 
-<div class="grid">
-<div class="card">
-<h2 style="margin-top:0">파일 목록</h2>
-<input type="text" id="fileSearch" placeholder="파일 이름으로 검색 (예: png, mp3, index)">
-<p class="small"><span id="fileCount">0개</span> · 파일을 클릭하면 오른쪽에서 미리볼 수 있습니다.</p>
-<div id="fileList"></div>
-</div>
-<div class="card">
-<h2 style="margin-top:0">미리보기 / 추출</h2>
-<div id="previewBox"><p class="small">파일 목록에서 이미지, 오디오, 비디오, 텍스트 파일을 클릭하면 여기서 재생하거나 내용을 볼 수 있습니다.</p></div>
-<p><button class="secondary" id="dlBtn" disabled>선택한 파일 다운로드</button></p>
-<p class="small">추출한 파일은 원본 APK 안에 있던 파일 그대로입니다. 저작권이 있는 앱의 에셋을 외부에 배포하지 마세요.</p>
-</div>
-</div>
-
-<div class="card">
-<h2 style="margin-top:0">기기별 실행 안내 — 솔직한 한계부터</h2>
-<p style="line-height:1.7">브라우저 안에서는 안드로이드 네이티브 코드(DEX)를 직접 실행할 수 없습니다. 그래서 이 플레이어는 <b>분석 + 에셋 미리보기 + 웹앱 APK 실제 플레이</b>까지는 브라우저로 하고, 네이티브 앱의 진짜 실행은 기기별 정식 방법으로 연결합니다. 아이폰은 APK 자체를 설치할 수 없는 구조라, 웹앱 APK 플레이 또는 클라우드 안드로이드가 대안입니다.</p>
-<div class="guide">
-<div><b>PC에서 네이티브 APK 실행하기</b><br>1. BlueStacks 또는 Android Studio 에뮬레이터를 설치합니다.<br>2. 에뮬레이터에 APK를 드래그해서 설치합니다.<br>3. 출처를 알 수 없는 APK는 설치하지 마세요.</div>
-<div><b>안드로이드에서 실행하기</b><br>1. APK 파일을 기기에 저장합니다.<br>2. 파일 앱에서 APK를 눌러 설치합니다.<br>3. 처음에는 “알 수 없는 출처 설치 허용”을 물어볼 수 있습니다. 믿을 수 있는 파일에만 허용하세요.</div>
-<div><b>아이폰에서</b><br>1. APK는 iOS에 설치할 수 없습니다.<br>2. 같은 앱의 iOS 버전을 스토어에서 찾으세요.<br>3. 웹앱 형태 APK라면 이 플레이어에서 바로 플레이할 수 있습니다.<br>4. 네이티브 앱을 꼭 써야 하면 클라우드 안드로이드(Appetize, Genymotion Cloud 등 유료 서비스) 스트리밍이 필요합니다.</div>
-</div>
-<p class="small">이 사이트는 어떤 APK도 서버에 업로드하지 않습니다. 분석, 해시 계산, 플레이가 모두 이 브라우저 안에서 일어납니다.</p>
-</div>
+  <section class="card">
+    <h2>수행평가 · 시험 D-day</h2>
+    <div class="row">
+      <input id="ddayName" type="text" placeholder="예: 수학 수행평가">
+      <input id="ddayDate" type="date">
+      <button id="ddayAddBtn" type="button">추가</button>
+    </div>
+    <div id="ddayOut" style="margin-top:8px"></div>
+    <p class="muted" style="margin-top:10px">D-day는 이 브라우저에만 저장됩니다. 다른 기기에서는 다시 입력해야 합니다.</p>
+  </section>
 </main>
+<footer>
+  오늘급식표 · 급식·시간표 데이터: 나이스 교육정보 개방 포털 제공 · 알레르기 번호는 원본 그대로 표시됩니다<br>
+  알레르기: 1 난류, 2 우유, 3 메밀, 4 땅콩, 5 대두, 6 밀, 7 고등어, 8 게, 9 새우, 10 돼지고기, 11 복숭아, 12 토마토, 13 아황산염, 14 호두, 15 닭고기, 16 쇠고기, 17 오징어, 18 조개류, 19 잣
+</footer>
 <script>
-"use strict";
-const $=id=>document.getElementById(id);
-const fmt=n=>{if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";if(n<1073741824)return (n/1048576).toFixed(1)+" MB";return (n/1073741824).toFixed(2)+" GB"};
-const mime=name=>{const e=name.split(".").pop().toLowerCase();const m={png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",gif:"image/gif",webp:"image/webp",svg:"image/svg+xml",mp3:"audio/mpeg",wav:"audio/wav",ogg:"audio/ogg",m4a:"audio/mp4",mp4:"video/mp4",webm:"video/webm",css:"text/css",js:"text/javascript",json:"application/json",html:"text/html",txt:"text/plain",xml:"text/xml"};return m[e]||"application/octet-stream"};
-let zipObj=null, allFiles=[], webIndex=null, webRoot="", rewrittenUrl="", selectedFile=null, selectedBlob=null;
-function setStatus(t){$("status").textContent=t}
-</script>
-<script>
-"use strict";
-// ---- Binary AndroidManifest.xml (AXML) parser ----
-function readUtf8Len(dv,pos){const b=dv.getUint8(pos);if(b&0x80){return [((b&0x7f)<<8)|dv.getUint8(pos+1),pos+2]}return [b,pos+1]}
-function parseStringPool(dv,off){
-  const count=dv.getUint32(off+8,true), flags=dv.getUint32(off+16,true), stringsStart=dv.getUint32(off+20,true);
-  const offsets=[]; for(let i=0;i<count;i++) offsets.push(dv.getUint32(off+28+i*4,true));
-  const isUtf8=(flags&0x100)!==0; const out=[];
-  for(let i=0;i<count;i++){
-    let p=off+stringsStart+offsets[i];
-    try{
-      if(isUtf8){let r=readUtf8Len(dv,p); p=r[1]; r=readUtf8Len(dv,p); const blen=r[1]; p=r[1]; const bytes=new Uint8Array(dv.buffer,dv.byteOffset+p,blen); out.push(new TextDecoder("utf-8").decode(bytes));}
-      else{let len=dv.getUint16(p,true); p+=2; if(len&0x8000){len=((len&0x7fff)<<16)|dv.getUint16(p,true); p+=2;} const bytes=new Uint8Array(dv.buffer,dv.byteOffset+p,len*2); out.push(new TextDecoder("utf-16le").decode(bytes));}
-    }catch(e){out.push("")}
+const $ = (id) => document.getElementById(id);
+const API = "https://open.neis.go.kr/hub/";
+let school = null;
+try { school = JSON.parse(localStorage.getItem("todaySchool") || "null"); } catch(e) { school = null; }
+let ddays = [];
+try { ddays = JSON.parse(localStorage.getItem("todayDdays") || "[]"); } catch(e) { ddays = []; }
+
+function pad(n){ return String(n).padStart(2,"0"); }
+function toYMD(d){ return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()); }
+function fromInput(v){ const p = v.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+function displayDate(d){ const w = ["일","월","화","수","목","금","토"][d.getDay()]; return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " (" + w + ")"; }
+function semesterFor(d){
+  const m = d.getMonth()+1, y = d.getFullYear();
+  if (m >= 3 && m <= 8) return { ay: y, sem: 1 };
+  if (m >= 9) return { ay: y, sem: 2 };
+  return { ay: y-1, sem: 2 };
+}
+function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+async function neis(endpoint, params){
+  const q = new URLSearchParams(Object.assign({ Type: "json", pIndex: 1, pSize: 100 }, params));
+  const res = await fetch(API + endpoint + "?" + q.toString());
+  if (!res.ok) throw new Error("NEIS 응답 오류 " + res.status);
+  const data = await res.json();
+  const top = data[endpoint];
+  if (!top) throw new Error("예상과 다른 응답입니다.");
+  const head = top[0] && top[0].head ? top[0].head[1] : null;
+  if (head && head.RESULT && head.RESULT.CODE !== "INFO-000") {
+    const err = new Error(head.RESULT.MESSAGE || "자료가 없습니다.");
+    err.code = head.RESULT.CODE;
+    throw err;
   }
-  return out;
+  return (top[1] && top[1].row) || [];
 }
-function parseAXML(buf){
-  const dv=new DataView(buf); if(dv.getUint16(0,true)!==0x0003) throw new Error("AXML이 아닙니다");
-  const fileSize=dv.getUint32(4,true); let strings=[]; const elements=[]; let off=8;
-  while(off+8<=fileSize){
-    const type=dv.getUint16(off,true), hsize=dv.getUint16(off+2,true), size=dv.getUint32(off+4,true);
-    if(size<=0) break;
-    if(type===0x0001){strings=parseStringPool(dv,off);}
-    else if(type===0x0102){
-      const nameIdx=dv.getInt32(off+20,true), attrCount=dv.getUint16(off+28,true);
-      const name=strings[nameIdx]||"";
-      const attrs={}; const attrBase=off+36;
-      for(let i=0;i<attrCount;i++){
-        const a=attrBase+i*20; const nsIdx=dv.getInt32(a,true), anIdx=dv.getInt32(a+4,true), raw=dv.getInt32(a+8,true);
-        const dataType=dv.getUint8(a+15), data=dv.getUint32(a+16,true);
-        const aname=strings[anIdx]||("attr"+i);
-        let val="";
-        if(dataType===3) val=strings[data]||"";
-        else if(dataType===1) val="ref:0x"+data.toString(16);
-        else if(dataType===0x12) val=data!==0?"true":"false";
-        else if(dataType===0x10||dataType===0x11) val=String(data);
-        else if(raw>=0&&strings[raw]) val=strings[raw];
-        else val="0x"+data.toString(16);
-        attrs[aname]={type:dataType,value:val,raw:raw};
-      }
-      elements.push({name:name,attrs:attrs});
-    }
-    off+=size;
-  }
-  const get=(el,k)=>el&&el.attrs[k]?el.attrs[k].value:"";
-  const manifest=elements.find(e=>e.name==="manifest")||{attrs:{}};
-  const app=elements.find(e=>e.name==="application")||{attrs:{}};
-  const sdk=elements.find(e=>e.name==="uses-sdk")||{attrs:{}};
-  const perms=elements.filter(e=>e.name==="uses-permission").map(e=>get(e,"name")).filter(Boolean);
-  return {package:get(manifest,"package"), versionCode:get(manifest,"versionCode"), versionName:get(manifest,"versionName"),
-    label:get(app,"label"), icon:get(app,"icon"), minSdk:get(sdk,"minSdkVersion"), targetSdk:get(sdk,"targetSdkVersion"),
-    permissions:perms, elements:elements};
+
+function renderSaved(){
+  if (!school) { $("savedSchool").innerHTML = ""; return; }
+  $("savedSchool").innerHTML = '<div class="ok">선택된 학교: <b>' + esc(school.name) + '</b> (' + esc(school.region || "") + " " + esc(school.kind || "") + ') <button type="button" class="small secondary" id="clearSchoolBtn">학교 바꾸기</button></div>';
+  $("clearSchoolBtn").onclick = () => { school = null; localStorage.removeItem("todaySchool"); renderSaved(); };
 }
-function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
-</script>
-<script>
-"use strict";
-async function sha256(buf){const h=await crypto.subtle.digest("SHA-256",buf);return Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,"0")).join("")}
-function renderFiles(){
-  const q=$("fileSearch").value.trim().toLowerCase();
-  const list=allFiles.filter(f=>!q||f.name.toLowerCase().includes(q));
-  $("fileCount").textContent=list.length+"개 / 전체 "+allFiles.length+"개";
-  $("fileList").innerHTML=list.slice(0,500).map(f=>"<div data-n='"+esc(f.name)+"'>"+esc(f.name)+" <span class='small'>"+fmt(f.size||0)+"</span></div>").join("")||"<p class='small'>검색 결과가 없습니다.</p>";
-  document.querySelectorAll("#fileList div[data-n]").forEach(d=>{d.onclick=()=>previewFile(d.dataset.n)});
-}
-async function previewFile(name){
-  selectedFile=name; const entry=zipObj.file(name); if(!entry) return;
-  const blob=await entry.async("blob"); selectedBlob=blob; $("dlBtn").disabled=false;
-  const box=$("previewBox"); const low=name.toLowerCase();
-  const url=URL.createObjectURL(blob);
-  if(/\.(png|jpg|jpeg|gif|webp|svg)$/.test(low)) box.innerHTML="<p><b>"+esc(name)+"</b></p><img src='"+url+"' alt='preview'>";
-  else if(/\.(mp3|wav|ogg|m4a)$/.test(low)) box.innerHTML="<p><b>"+esc(name)+"</b></p><audio controls src='"+url+"'></audio>";
-  else if(/\.(mp4|webm)$/.test(low)) box.innerHTML="<p><b>"+esc(name)+"</b></p><video controls src='"+url+"'></video>";
-  else if(/\.(txt|json|xml|html|css|js|properties)$/.test(low)){const t=await entry.async("string"); box.innerHTML="<p><b>"+esc(name)+"</b></p><pre>"+esc(t.slice(0,100000))+"</pre>";}
-  else box.innerHTML="<p><b>"+esc(name)+"</b></p><p class='small'>이 파일 형식은 미리보기를 지원하지 않습니다. 다운로드 버튼으로 추출할 수 있습니다. 크기: "+fmt(blob.size)+"</p>";
-}
-$("dlBtn").onclick=()=>{if(!selectedBlob||!selectedFile)return; const a=document.createElement("a"); a.href=URL.createObjectURL(selectedBlob); a.download=selectedFile.split("/").pop(); a.click();};
-async function buildWebPlay(){
-  if(!webIndex) return false;
-  try{
-    const idxText=await zipObj.file(webIndex).async("string");
-    const map={};
-    const rootFiles=allFiles.filter(f=>f.name.startsWith(webRoot)&&!f.name.endsWith("/"));
-    for(const f of rootFiles.slice(0,200)){
-      const ext=f.name.split(".").pop().toLowerCase();
-      if(!["js","css","png","jpg","jpeg","gif","webp","svg","mp3","wav","ogg","mp4","json"].includes(ext)) continue;
-      try{const b=await zipObj.file(f.name).async("blob"); map[f.name.slice(webRoot.length)]=URL.createObjectURL(new Blob([b],{type:mime(f.name)}));}catch(e){}
-    }
-    const rewritten=idxText.replace(/((?:src|href)\s*=\s*["'])(?!https?:|data:|#|blob:)([^"']+)(["'])/g,(m,p1,path,p3)=>{
-      let clean=decodeURIComponent(path).replace(/^\.\//,"");
-      if(map[clean]) return p1+map[clean]+p3;
-      const base=clean.split("/").pop(); const hit=Object.keys(map).find(k=>k.endsWith("/"+base)||k===base);
-      return hit?p1+map[hit]+p3:m;
+
+async function searchSchool(){
+  const q = $("schoolQuery").value.trim();
+  if (!q) { $("searchOut").innerHTML = '<div class="error">학교 이름을 입력해 주세요.</div>'; return; }
+  $("searchOut").innerHTML = "검색 중...";
+  try {
+    const rows = await neis("schoolInfo", { SCHUL_NM: q, pSize: 20 });
+    if (!rows.length) { $("searchOut").innerHTML = '<div class="error">검색 결과가 없습니다. 정확한 학교 이름으로 다시 입력해 보세요.</div>'; return; }
+    $("searchOut").innerHTML = rows.map((r) => '<div class="school-result" data-atpt="' + esc(r.ATPT_OFCDC_SC_CODE) + '" data-sd="' + esc(r.SD_SCHUL_CODE) + '" data-name="' + esc(r.SCHUL_NM) + '" data-kind="' + esc(r.SCHUL_KND_SC_NM) + '" data-region="' + esc(r.LCTN_SC_NM) + '"><b>' + esc(r.SCHUL_NM) + '</b> · ' + esc(r.LCTN_SC_NM || "") + " " + esc(r.SCHUL_KND_SC_NM || "") + (r.ORG_RDNMA ? " · " + esc(r.ORG_RDNMA) : "") + "</div>").join("");
+    document.querySelectorAll(".school-result").forEach((el) => {
+      el.onclick = () => {
+        school = { atpt: el.dataset.atpt, sd: el.dataset.sd, name: el.dataset.name, kind: el.dataset.kind, region: el.dataset.region };
+        localStorage.setItem("todaySchool", JSON.stringify(school));
+        renderSaved();
+        $("searchOut").innerHTML = '<div class="ok">' + esc(school.name) + "을(를) 선택했습니다. 아래에서 급식·시간표를 불러오세요.</div>";
+        updateShareUrl();
+        loadAll();
+      };
     });
-    $("playerFrame").srcdoc=rewritten;
-    rewrittenUrl=URL.createObjectURL(new Blob([rewritten],{type:"text/html"}));
-    return true;
-  }catch(e){return false}
-}
-async function loadApk(blob,fileName){
-  window.currentApkBlob=blob; window.currentApkName=fileName;
-  if(typeof JSZip==="undefined"){setStatus("JSZip 라이브러리를 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침하세요.");return}
-  setStatus("분석 중… (파일을 서버로 보내지 않습니다)");
-  try{
-    const buf=await blob.arrayBuffer();
-    zipObj=await JSZip.loadAsync(buf);
-    allFiles=[]; zipObj.forEach((rel,entry)=>{if(!entry.dir) allFiles.push({name:entry.name,size:0})});
-    // sizes are not in JSZip index; keep count only, size shown from blob where possible
-    $("appFiles").textContent=allFiles.length+"개";
-    $("appSize").textContent=fmt(blob.size);
-    $("appSha").textContent=await sha256(buf);
-    let info=null;
-    const man=zipObj.file("AndroidManifest.xml");
-    if(man){try{const mb=await man.async("arraybuffer"); info=parseAXML(mb);}catch(e){info=null}}
-    const pkg=info&&info.package?info.package:"(매니페스트에서 패키지 확인 불가)";
-    const label=info&&info.label&&!info.label.startsWith("ref:")?info.label:pkg;
-    $("appName").textContent=label;
-    $("appPackage").textContent=pkg;
-    $("appVersion").textContent=(info&&info.versionName?info.versionName:"-")+" ("+(info&&info.versionCode?info.versionCode:"-")+")";
-    $("appSdk").textContent=(info&&info.minSdk?info.minSdk:"-")+" / "+(info&&info.targetSdk?info.targetSdk:"-");
-    $("appPerm").textContent=info?info.permissions.length+"개":"-";
-    $("permBox").innerHTML=info&&info.permissions.length?("<b>권한</b><br>"+info.permissions.map(p=>esc(p)).join("<br>")):"";
-    // icon: prefer xxxhdpi launcher
-    const icons=allFiles.map(f=>f.name).filter(n=>/(mipmap|drawable)[^/]*\/.*(launcher|icon).*\.png$/i.test(n));
-    icons.sort((a,b)=>{const rank=s=>s.includes("xxxhdpi")?0:s.includes("xxhdpi")?1:s.includes("xhdpi")?2:s.includes("hdpi")?3:4;return rank(a)-rank(b)});
-    if(icons.length){try{const b=await zipObj.file(icons[0]).async("blob"); const u=URL.createObjectURL(b); const im=$("appIcon"); im.src=u; im.style.display="block";}catch(e){}}
-    else{$("appIcon").style.display="none"}
-    // web content detection
-    const cands=["assets/public/index.html","assets/www/index.html","assets/index.html"];
-    webIndex=cands.find(c=>zipObj.file(c))||allFiles.map(f=>f.name).filter(n=>/^assets\/.+\/index\.html$/.test(n)).sort((a,b)=>a.length-b.length)[0]||null;
-    webRoot=webIndex?webIndex.slice(0,webIndex.length-"index.html".length):"";
-    const nativeBox=$("nativeBox"), webBox=$("webOkBox");
-    if(webIndex){
-      $("appType").textContent="웹앱 형태 APK — 이 플레이어에서 바로 플레이 가능";
-      webBox.style.display="block"; webBox.innerHTML="<b>플레이 가능:</b> 이 APK 안에 웹 콘텐츠("+esc(webIndex)+")가 있습니다. 플레이 버튼을 누르면 아래 플레이어에서 실행됩니다. 외부 파일이 많은 복잡한 웹앱은 일부 리소스가 안 뜰 수 있습니다.";
-      nativeBox.style.display="none"; $("playBtn").disabled=false; $("newTabBtn").disabled=false; $("playerNote").textContent="플레이 버튼을 누르면 웹 콘텐츠가 플레이어에 뜹니다. 게임 소리가 안 나면 플레이어 안을 한 번 클릭하세요.";
-      await buildWebPlay();
-      setStatus("분석 완료: "+fileName+" — 웹앱 형태, 플레이 준비됨");
-    }else{
-      $("appType").textContent="네이티브 APK — 브라우저에서 직접 실행 불가";
-      webBox.style.display="none"; nativeBox.style.display="block";
-      nativeBox.innerHTML="<b>브라우저에서는 이 앱을 직접 실행할 수 없습니다.</b> 안드로이드 네이티브 코드는 브라우저에서 돌아가지 않고, 아이폰은 APK 설치 자체가 안 됩니다. 위 기기별 안내대로 PC 에뮬레이터 / 안드로이드 직접 설치 / 클라우드 안드로이드를 이용하세요. 대신 앱 정보, 권한, 파일 목록, 이미지·오디오·비디오 에셋 미리보기는 여기서 확인할 수 있습니다.";
-      $("playBtn").disabled=true; $("newTabBtn").disabled=true; $("playerNote").textContent="네이티브 APK라 플레이 버튼이 비활성화됐습니다.";
-      $("playerFrame").removeAttribute("srcdoc"); $("playerFrame").src="about:blank";
-      setStatus("분석 완료: "+fileName+" — 네이티브 APK, 정보·파일·에셋 확인 가능");
-    }
-    renderFiles();
-  }catch(e){console.error(e); setStatus("분석 실패: "+e.message+" — 파일이 손상됐거나 APK(zip) 형식이 아닐 수 있습니다.")}
-}
-$("playBtn").onclick=async()=>{if(await buildWebPlay()) setStatus("플레이 중"); else setStatus("플레이 준비에 실패했습니다")};
-$("newTabBtn").onclick=async()=>{if(!rewrittenUrl) await buildWebPlay(); if(rewrittenUrl) window.open(rewrittenUrl,"_blank")};
-$("fsBtn").onclick=()=>{const w=$("playerWrap"); if(w.requestFullscreen) w.requestFullscreen()};
-$("fileSearch").oninput=renderFiles;
-$("clearBtn").onclick=()=>{zipObj=null; allFiles=[]; webIndex=null; rewrittenUrl=""; $("playerFrame").removeAttribute("srcdoc"); $("playerFrame").src="about:blank"; $("fileList").innerHTML=""; $("previewBox").innerHTML="<p class='small'>파일 목록에서 파일을 선택하세요.</p>"; $("appName").textContent="-"; $("appPackage").textContent="-"; $("appVersion").textContent="-"; $("appSize").textContent="-"; $("appSha").textContent="-"; $("appSdk").textContent="-"; $("appPerm").textContent="-"; $("appFiles").textContent="-"; $("appType").textContent="-"; $("permBox").innerHTML=""; $("nativeBox").style.display="none"; $("webOkBox").style.display="none"; $("playBtn").disabled=true; $("newTabBtn").disabled=true; setStatus("지웠습니다.")};
-const dz=$("dropZone");
-dz.onclick=()=>$("fileInput").click();
-$("fileInput").onchange=e=>{if(e.target.files[0]) loadApk(e.target.files[0],e.target.files[0].name)};
-["dragover","dragenter"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add("drag")}));
-["dragleave","drop"].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove("drag")}));
-dz.addEventListener("drop",e=>{const f=e.dataTransfer.files[0]; if(f) loadApk(f,f.name)});
-$("sampleBtn").onclick=async()=>{
-  if(typeof JSZip==="undefined"){setStatus("JSZip 로딩 대기 중입니다. 잠시 후 다시 눌러주세요.");return}
-  setStatus("샘플 웹-APK 만드는 중…");
-  const z=new JSZip();
-  z.file("AndroidManifest.xml","sample manifest - binary parsing is skipped for this demo");
-  const game="<!DOCTYPE html><html lang='ko'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{font-family:system-ui;text-align:center;padding:30px;background:#111827;color:#fff}button{font-size:20px;padding:14px 24px;border-radius:12px;border:0;background:#0ea5e9;color:#fff} #box{width:80px;height:80px;background:#f59e0b;margin:20px auto;border-radius:16px;transition:transform .15s}</style></head><body><h2>샘플 미니 게임</h2><p>이 화면 자체가 APK 안에 있던 웹 콘텐츠입니다.</p><div id='box'></div><p>점수: <b id='s'>0</b></p><button onclick='hit()'>박스 두드리기</button><script>let s=0;function hit(){s++;document.getElementById('s').textContent=s;const b=document.getElementById('box');b.style.transform='scale('+(1+Math.random()*0.4)+') rotate('+(Math.random()*30-15)+'deg)';}<\/script></body></html>";
-  z.folder("assets").folder("public").file("index.html",game);
-  const blob=await z.generateAsync({type:"blob"});
-  await loadApk(blob,"sample-web-apk.apk");
-};
-</script>
-<script>
-"use strict";
-// ---- Cloud real play (Appetize) ----
-(function(){
-  const $=id=>document.getElementById(id);
-  const saved=localStorage.getItem("appetize_token"); if(saved) $("cloudToken").value=saved;
-  const savedKey=localStorage.getItem("appetize_last_key"); if(savedKey) $("cloudKey").value=savedKey;
-  $("saveTokenBtn").onclick=()=>{const t=$("cloudToken").value.trim(); if(!t){$("cloudStatus").textContent="토큰을 먼저 입력해라.";return} localStorage.setItem("appetize_token",t); $("cloudStatus").textContent="토큰을 이 브라우저에만 저장했다."};
-  $("clearTokenBtn").onclick=()=>{localStorage.removeItem("appetize_token"); $("cloudToken").value=""; $("cloudStatus").textContent="토큰을 지웠다."};
-  $("clearBtn").addEventListener("click",()=>{window.currentApkBlob=null; window.currentApkName=""; $("cloudWrap").style.display="none"; $("cloudFrame").src="about:blank"});
-  function embedCloud(key){
-    const device=$("cloudDevice").value, orient=$("cloudOrient").value;
-    const url="https://appetize.io/embed/"+encodeURIComponent(key)+"?device="+encodeURIComponent(device)+"&orientation="+orient+"&scale=80&autoplay=true&deviceColor=black";
-    $("cloudFrame").src=url; $("cloudWrap").style.display="block";
-    $("cloudLink").href="https://appetize.io/app/"+encodeURIComponent(key);
-    $("cloudLink").textContent="Appetize에서 이 앱 새 탭으로 열기";
-    localStorage.setItem("appetize_last_key",key);
-    $("cloudStatus").textContent="클라우드 화면을 열었다. 화면 안을 클릭해서 조작해라. 세션이 끝나면 다시 실행 버튼을 눌러라.";
+  } catch(e) {
+    $("searchOut").innerHTML = '<div class="error">검색에 실패했습니다. 잠시 뒤 다시 시도해 주세요. (' + esc(e.message) + ")</div>";
   }
-  $("cloudEmbedBtn").onclick=()=>{
-    const key=$("cloudKey").value.trim();
-    if(!key){$("cloudStatus").textContent="publicKey를 먼저 입력해라. 토큰으로 업로드했으면 그 키가 자동으로 채워진다.";return}
-    embedCloud(key);
-  };
-  $("cloudCloseBtn").onclick=()=>{$("cloudWrap").style.display="none"; $("cloudFrame").src="about:blank"; $("cloudStatus").textContent="클라우드 화면을 닫았다. (클라우드 세션 자체는 Appetize에서 종료될 수 있다)"};
-  $("apkOnlineBtn").onclick=()=>{window.open("https://www.apkonline.net/","_blank","noopener")};
-  $("cloudUploadBtn").onclick=async()=>{
-    const token=$("cloudToken").value.trim();
-    const blob=window.currentApkBlob, name=window.currentApkName||"app.apk";
-    if(!blob){$("cloudStatus").textContent="먼저 위에서 진짜 APK 파일을 선택해라.";return}
-    if(name==="sample-web-apk.apk"){$("cloudStatus").textContent="샘플 웹-APK는 진짜 안드로이드 앱이 아니라서 클라우드에서 실행이 안 된다. 진짜 APK 파일로 다시 해라.";return}
-    if(!token){$("cloudStatus").textContent="Appetize API 토큰이 없다. 무료 계정 만들고 토큰을 붙여넣은 뒤 저장해라. 토큰 없이 바로 해보고 싶으면 아래 ApkOnline 버튼을 써라.";return}
-    $("cloudStatus").textContent="클라우드에 업로드 중… 파일 크기에 따라 시간이 걸릴 수 있다. 이 창을 닫지 마라.";
-    $("cloudFallback").style.display="none"; $("cloudFallback").innerHTML="";
-    const fd=new FormData(); fd.append("file",blob,name); fd.append("platform","android"); fd.append("appPermissions.run","public");
-    try{
-      const res=await fetch("https://api.appetize.io/v1/apps",{method:"POST",headers:{"X-API-KEY":token},body:fd});
-      const text=await res.text(); let data={}; try{data=JSON.parse(text)}catch(e){}
-      if(!res.ok){
-        throw new Error("Appetize 응답 "+res.status+": "+(data.message||data.error||text.slice(0,300)));
-      }
-      if(!data.publicKey) throw new Error("publicKey를 받지 못했다: "+text.slice(0,300));
-      $("cloudKey").value=data.publicKey;
-      embedCloud(data.publicKey);
-    }catch(e){
-      console.error(e);
-      $("cloudStatus").textContent="브라우저 직접 업로드가 실패했다. 아래 대안을 써라. (브라우저 CORS 차단이 흔한 원인이다)";
-      $("cloudFallback").style.display="block";
-      $("cloudFallback").innerHTML="<b>대안 1 - 대시보드에서 직접 업로드 (확실함):</b> Appetize 대시보드에서 Upload로 APK를 올리고, 나온 publicKey를 위 입력란에 넣고 “publicKey로 바로 실행”을 눌러라.<br><b>대안 2 - 터미널 명령 (토큰은 직접 채우기):</b><pre>curl -X POST https://api.appetize.io/v1/apps -H \"X-API-KEY: 여기에_토큰\" -F \"file=@"+name.replace(/\"/g,"")+"\" -F \"platform=android\" -F \"appPermissions.run=public\"</pre><p>실패 원인: "+e.message.replace(/</g,"&lt;")+"</p>";
+}
+
+function parseDish(raw){
+  const m = raw.match(/\s*\((\d[\d.]*)\)\s*$/);
+  if (m) return { name: raw.slice(0, m.index).trim(), allergy: m[1] };
+  return { name: raw.trim(), allergy: "" };
+}
+
+async function loadMeal(){
+  if (!school) return;
+  const d = fromInput($("dateInput").value);
+  $("mealDateLabel").textContent = displayDate(d);
+  $("mealOut").innerHTML = "불러오는 중...";
+  try {
+    const rows = await neis("mealServiceDietInfo", { ATPT_OFCDC_SC_CODE: school.atpt, SD_SCHUL_CODE: school.sd, MLSV_YMD: toYMD(d), pSize: 10 });
+    if (!rows.length) { $("mealOut").innerHTML = '<div class="muted">이 날짜의 급식 자료가 없습니다. (주말·방학·급식 없는 날일 수 있습니다)</div>'; return; }
+    $("mealOut").innerHTML = rows.map((r) => {
+      const dishes = String(r.DDISH_NM || "").split("<br/>").filter(Boolean).map(parseDish);
+      return "<h3>" + esc(r.MMEAL_SC_NM) + (r.CAL_INFO ? ' <span class="muted">' + esc(r.CAL_INFO) + "</span>" : "") + "</h3>" +
+        dishes.map((x) => '<div class="dish">' + esc(x.name) + (x.allergy ? '<span class="allergy">알레르기 ' + esc(x.allergy) + "</span>" : "") + "</div>").join("");
+    }).join("");
+  } catch(e) {
+    $("mealOut").innerHTML = '<div class="muted">이 날짜의 급식 자료가 없습니다. (주말·방학·급식 없는 날일 수 있습니다)</div>';
+  }
+}
+
+async function loadWeek(){
+  if (!school) { $("weekOut").innerHTML = '<div class="error">먼저 학교를 선택해 주세요.</div>'; return; }
+  const base = fromInput($("dateInput").value);
+  const day = base.getDay();
+  const monday = new Date(base); monday.setDate(base.getDate() - ((day + 6) % 7));
+  const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
+  $("weekOut").innerHTML = "불러오는 중...";
+  try {
+    const rows = await neis("mealServiceDietInfo", { ATPT_OFCDC_SC_CODE: school.atpt, SD_SCHUL_CODE: school.sd, MLSV_FROM_YMD: toYMD(monday), MLSV_TO_YMD: toYMD(friday), pSize: 100 });
+    const byDate = {};
+    rows.forEach((r) => { (byDate[r.MLSV_YMD] = byDate[r.MLSV_YMD] || []).push(r); });
+    let html = "";
+    for (let i = 0; i < 5; i++) {
+      const d = new Date(monday); d.setDate(monday.getDate() + i);
+      const key = toYMD(d);
+      const dayRows = (byDate[key] || []).filter((r) => r.MMEAL_SC_NM === "중식");
+      html += "<h3>" + displayDate(d) + "</h3>";
+      if (!dayRows.length) html += '<p class="muted">급식 자료 없음</p>';
+      else html += dayRows.map((r) => String(r.DDISH_NM || "").split("<br/>").filter(Boolean).map((x) => esc(parseDish(x).name)).join(", ")).join("<br>");
     }
-  };
+    $("weekOut").innerHTML = html;
+  } catch(e) {
+    $("weekOut").innerHTML = '<div class="error">주간 급식을 불러오지 못했습니다.</div>';
+  }
+}
+
+function ttEndpoint(){
+  if (!school) return "misTimetable";
+  if ((school.kind || "").includes("초등")) return "elsTimetable";
+  if ((school.kind || "").includes("고등")) return "hisTimetable";
+  return "misTimetable";
+}
+
+async function loadTimetable(){
+  if (!school) return;
+  const d = fromInput($("dateInput").value);
+  const sem = semesterFor(d);
+  $("ttOut").innerHTML = "불러오는 중...";
+  try {
+    const rows = await neis(ttEndpoint(), { ATPT_OFCDC_SC_CODE: school.atpt, SD_SCHUL_CODE: school.sd, AY: sem.ay, SEM: sem.sem, ALL_TI_YMD: toYMD(d), GRADE: $("gradeSel").value, CLASS_NM: $("classSel").value, pSize: 100 });
+    const byPerio = {};
+    rows.forEach((r) => { if (r.ITRT_CNTNT) byPerio[r.PERIO] = r.ITRT_CNTNT; });
+    const perios = Object.keys(byPerio).sort((a, b) => +a - +b);
+    if (!perios.length) { $("ttOut").innerHTML = '<div class="muted">이 날짜·학년·반의 시간표 자료가 없습니다. 학년·반이 맞는지, 주말·방학은 아닌지 확인해 보세요.</div>'; return; }
+    $("ttOut").innerHTML = "<table><tbody>" + perios.map((p) => "<tr><th>" + esc(p) + "교시</th><td>" + esc(byPerio[p]) + "</td></tr>").join("") + "</tbody></table>";
+  } catch(e) {
+    $("ttOut").innerHTML = '<div class="muted">이 날짜·학년·반의 시간표 자료가 없습니다.</div>';
+  }
+}
+
+function loadAll(){ loadMeal(); loadTimetable(); }
+
+function renderDdays(){
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const sorted = ddays.slice().sort((a, b) => a.date.localeCompare(b.date));
+  if (!sorted.length) { $("ddayOut").innerHTML = '<p class="muted">아직 등록된 D-day가 없습니다.</p>'; return; }
+  $("ddayOut").innerHTML = sorted.map((x, i) => {
+    const target = fromInput(x.date); target.setHours(0, 0, 0, 0);
+    const diff = Math.round((target - today) / 86400000);
+    const label = diff === 0 ? "D-day" : (diff > 0 ? "D-" + diff : "D+" + Math.abs(diff));
+    return '<div class="dday"><div class="left"><b>' + esc(x.name) + '</b><br><span class="muted">' + esc(x.date) + "</span></div><div><span class='pill'>" + label + '</span> <button type="button" class="small secondary" data-i="' + i + '">삭제</button></div></div>';
+  }).join("");
+  document.querySelectorAll("#ddayOut button").forEach((b) => {
+    b.onclick = () => {
+      const orig = sorted[+b.dataset.i];
+      ddays = ddays.filter((x) => x !== orig);
+      localStorage.setItem("todayDdays", JSON.stringify(ddays));
+      renderDdays();
+    };
+  });
+}
+
+function updateShareUrl(){
+  if (!school) return;
+  const u = new URL(location.href);
+  u.searchParams.set("atpt", school.atpt); u.searchParams.set("sd", school.sd);
+  u.searchParams.set("name", school.name); u.searchParams.set("kind", school.kind || ""); u.searchParams.set("region", school.region || "");
+  history.replaceState(null, "", u.toString());
+}
+
+function initDate(){
+  const t = new Date();
+  $("dateInput").value = t.getFullYear() + "-" + pad(t.getMonth()+1) + "-" + pad(t.getDate());
+}
+function shiftDay(n){
+  const d = fromInput($("dateInput").value); d.setDate(d.getDate() + n);
+  $("dateInput").value = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate());
+  loadAll();
+}
+
+$("searchBtn").onclick = searchSchool;
+$("schoolQuery").addEventListener("keydown", (e) => { if (e.key === "Enter") searchSchool(); });
+$("loadBtn").onclick = loadAll;
+$("weekBtn").onclick = loadWeek;
+$("prevDayBtn").onclick = () => shiftDay(-1);
+$("nextDayBtn").onclick = () => shiftDay(1);
+$("todayBtn").onclick = () => { initDate(); loadAll(); };
+$("dateInput").onchange = loadAll;
+$("shareBtn").onclick = async () => {
+  if (!school) { alert("먼저 학교를 선택해 주세요."); return; }
+  updateShareUrl();
+  try { await navigator.clipboard.writeText(location.href); alert("이 학교 링크를 복사했습니다. 친구에게 공유해 보세요."); }
+  catch(e) { prompt("아래 링크를 복사해 주세요.", location.href); }
+};
+$("ddayAddBtn").onclick = () => {
+  const name = $("ddayName").value.trim(), date = $("ddayDate").value;
+  if (!name || !date) { alert("이름과 날짜를 모두 입력해 주세요."); return; }
+  ddays.push({ name, date });
+  localStorage.setItem("todayDdays", JSON.stringify(ddays));
+  $("ddayName").value = ""; $("ddayDate").value = "";
+  renderDdays();
+};
+
+(function init(){
+  initDate();
+  const p = new URLSearchParams(location.search);
+  if (p.get("atpt") && p.get("sd") && p.get("name")) {
+    school = { atpt: p.get("atpt"), sd: p.get("sd"), name: p.get("name"), kind: p.get("kind") || "", region: p.get("region") || "" };
+    localStorage.setItem("todaySchool", JSON.stringify(school));
+  }
+  renderSaved();
+  renderDdays();
+  if (school) loadAll();
 })();
 </script>
 </body>
