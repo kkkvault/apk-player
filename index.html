@@ -73,7 +73,7 @@ footer{color:#667085;font-size:12px;line-height:1.7;text-align:center;padding:20
       <button id="loadBtn" type="button">급식·시간표 불러오기</button>
       <button id="shareBtn" type="button" class="secondary">이 학교 링크 복사</button>
     </div>
-    <p class="muted" style="margin:10px 0 0">시간표는 선택한 학년·반 기준으로 불러옵니다. 데이터 출처: 나이스 교육정보 개방 포털(NEIS Open API). 키 입력 없이 바로 조회됩니다.</p>
+    <p class="muted" style="margin:10px 0 0">시간표는 NEIS 시간표를 쓰지 않고, 아래에서 직접 입력한 표만 표시합니다. 급식 데이터 출처: 나이스 교육정보 개방 포털(NEIS Open API). 키 입력 없이 바로 조회됩니다.</p>
   </section>
 
   <section class="card" id="mealCard">
@@ -84,15 +84,14 @@ footer{color:#667085;font-size:12px;line-height:1.7;text-align:center;padding:20
   </section>
 
   <section class="card" id="ttCard">
-    <h2>시간표</h2>
-    <div id="ttOut" class="muted">학교를 선택한 뒤 불러오기를 눌러주세요.</div>
+    <h2>시간표 (직접 입력)</h2>
+    <div id="ttOut" class="muted">직접 입력한 시간표가 없습니다. 아래에서 월~금 시간표를 입력하고 저장하세요.</div>
   </section>
 
   <section class="card" id="manualCard">
     <h2>내 시간표 직접 입력</h2>
-    <p class="muted">NEIS 시간표가 학교 실제 시간표와 다르면 여기서 직접 입력하세요. 체크하면 NEIS보다 직접 입력한 시간표가 먼저 표시됩니다. 이 기기에만 저장됩니다.</p>
+    <p class="muted">시간표는 NEIS에서 가져오지 않습니다. 여기서 직접 입력한 표가 시간표 칸에 표시됩니다. 이 기기에만 저장됩니다.</p>
     <div class="row">
-      <label style="display:flex;gap:8px;align-items:center;font-size:15px"><input id="useManualChk" type="checkbox" style="flex:none;min-width:18px;width:18px;height:18px"> 직접 입력한 시간표 사용하기</label>
       <button id="manualSaveBtn" type="button">시간표 저장</button>
       <button id="manualClearBtn" type="button" class="secondary small">직접 입력 삭제</button>
     </div>
@@ -127,12 +126,6 @@ function pad(n){ return String(n).padStart(2,"0"); }
 function toYMD(d){ return d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()); }
 function fromInput(v){ const p = v.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
 function displayDate(d){ const w = ["일","월","화","수","목","금","토"][d.getDay()]; return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + " (" + w + ")"; }
-function semesterFor(d){
-  const m = d.getMonth()+1, y = d.getFullYear();
-  if (m >= 3 && m <= 8) return { ay: y, sem: 1 };
-  if (m >= 9) return { ay: y, sem: 2 };
-  return { ay: y-1, sem: 2 };
-}
 function esc(s){ return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 async function neis(endpoint, params){
@@ -162,9 +155,26 @@ async function searchSchool(){
   if (!q) { $("searchOut").innerHTML = '<div class="error">학교 이름을 입력해 주세요.</div>'; return; }
   $("searchOut").innerHTML = "검색 중...";
   try {
-    const rows = await neis("schoolInfo", { SCHUL_NM: q, pSize: 20 });
-    if (!rows.length) { $("searchOut").innerHTML = '<div class="error">검색 결과가 없습니다. 정확한 학교 이름으로 다시 입력해 보세요.</div>'; return; }
-    $("searchOut").innerHTML = rows.map((r) => '<div class="school-result" data-atpt="' + esc(r.ATPT_OFCDC_SC_CODE) + '" data-sd="' + esc(r.SD_SCHUL_CODE) + '" data-name="' + esc(r.SCHUL_NM) + '" data-kind="' + esc(r.SCHUL_KND_SC_NM) + '" data-region="' + esc(r.LCTN_SC_NM) + '"><b>' + esc(r.SCHUL_NM) + '</b> · ' + esc(r.LCTN_SC_NM || "") + " " + esc(r.SCHUL_KND_SC_NM || "") + (r.ORG_RDNMA ? " · " + esc(r.ORG_RDNMA) : "") + "</div>").join("");
+    // NEIS는 한 번의 검색에서 일부 학교만 돌려주는 경우가 있어 (예: "동래" 검색 시 동래중·동래초 누락),
+    // 단어에 초/중/고/여자초/여자중/여자고 접미사를 붙인 검색을 함께 돌려 단어가 포함된 학교를 최대한 모두 모은다.
+    const queries = [q];
+    const endsWithLevel = /(초|중|고|학교)$/.test(q);
+    if (!endsWithLevel) {
+      ["초", "중", "고", "여자초", "여자중", "여자고", "외국어고", "과학고", "예술고", "체육고"].forEach((s) => queries.push(q + s));
+    }
+    const results = await Promise.all(queries.map((qq) => neis("schoolInfo", { SCHUL_NM: qq, pSize: 20 }).catch(() => [])));
+    const seen = {};
+    const rows = [];
+    results.forEach((list) => list.forEach((r) => {
+      if (!r.SD_SCHUL_CODE || seen[r.SD_SCHUL_CODE]) return;
+      seen[r.SD_SCHUL_CODE] = true;
+      rows.push(r);
+    }));
+    // 입력한 단어가 이름에 포함된 학교만 남기고, 이름순으로 정렬한다.
+    const filtered = rows.filter((r) => (r.SCHUL_NM || "").includes(q)).sort((a, b) => (a.SCHUL_NM || "").localeCompare(b.SCHUL_NM || "", "ko"));
+    if (!filtered.length) { $("searchOut").innerHTML = '<div class="error">검색 결과가 없습니다. 정확한 학교 이름으로 다시 입력해 보세요.</div>'; return; }
+    $("searchOut").innerHTML = '<div class="muted" style="margin-bottom:8px">"' + esc(q) + '"가 포함된 학교 ' + filtered.length + "개가 나왔습니다.</div>" +
+      filtered.map((r) => '<div class="school-result" data-atpt="' + esc(r.ATPT_OFCDC_SC_CODE) + '" data-sd="' + esc(r.SD_SCHUL_CODE) + '" data-name="' + esc(r.SCHUL_NM) + '" data-kind="' + esc(r.SCHUL_KND_SC_NM) + '" data-region="' + esc(r.LCTN_SC_NM) + '"><b>' + esc(r.SCHUL_NM) + '</b> · ' + esc(r.LCTN_SC_NM || "") + " " + esc(r.SCHUL_KND_SC_NM || "") + (r.ORG_RDNMA ? " · " + esc(r.ORG_RDNMA) : "") + "</div>").join("");
     document.querySelectorAll(".school-result").forEach((el) => {
       el.onclick = () => {
         school = { atpt: el.dataset.atpt, sd: el.dataset.sd, name: el.dataset.name, kind: el.dataset.kind, region: el.dataset.region };
@@ -231,13 +241,6 @@ async function loadWeek(){
   }
 }
 
-function ttEndpoint(){
-  if (!school) return "misTimetable";
-  if ((school.kind || "").includes("초등")) return "elsTimetable";
-  if ((school.kind || "").includes("고등")) return "hisTimetable";
-  return "misTimetable";
-}
-
 function manualKey(){
   return "manualTT_" + (school ? school.sd : "noschool") + "_" + $("gradeSel").value + "_" + $("classSel").value;
 }
@@ -267,39 +270,27 @@ function saveManual(){
     data[d][p - 1] = el.value.trim();
   });
   localStorage.setItem(manualKey(), JSON.stringify(data));
-  $("manualOut").innerHTML = '<div class="ok">직접 입력한 시간표를 저장했습니다. 위 체크를 켜면 오늘 시간표에 이 표가 먼저 표시됩니다.</div>';
-  if ($("useManualChk").checked) loadTimetable();
+  $("manualOut").innerHTML = '<div class="ok">직접 입력한 시간표를 저장했습니다. 위 시간표 칸에 바로 표시됩니다.</div>';
+  loadTimetable();
 }
 
-async function loadTimetable(){
+// NEIS 시간표는 삭제됨. 시간표는 직접 입력한 표만 표시한다.
+function loadTimetable(){
   if (!school) return;
   const d = fromInput($("dateInput").value);
-  if ($("useManualChk").checked) {
-    const saved = loadManual();
-    const weekday = d.getDay();
-    if (saved && weekday >= 1 && weekday <= 5 && saved[weekday] && saved[weekday].some(Boolean)) {
-      const subjects = saved[weekday];
-      $("ttOut").innerHTML = '<p class="muted" style="margin:0 0 8px">직접 입력한 시간표입니다. (NEIS 대신 표시)</p><table><tbody>' +
-        subjects.map((s, i) => s ? "<tr><th>" + (i + 1) + "교시</th><td>" + esc(s) + "</td></tr>" : "").join("") + "</tbody></table>";
-      return;
-    }
-    if (weekday === 0 || weekday === 6) {
-      $("ttOut").innerHTML = '<div class="muted">주말입니다. 직접 입력한 시간표에도 주말 시간표가 없습니다.</div>';
-      return;
-    }
+  const saved = loadManual();
+  const weekday = d.getDay();
+  if (weekday === 0 || weekday === 6) {
+    $("ttOut").innerHTML = '<div class="muted">주말입니다.</div>';
+    return;
   }
-  const sem = semesterFor(d);
-  $("ttOut").innerHTML = "불러오는 중...";
-  try {
-    const rows = await neis(ttEndpoint(), { ATPT_OFCDC_SC_CODE: school.atpt, SD_SCHUL_CODE: school.sd, AY: sem.ay, SEM: sem.sem, ALL_TI_YMD: toYMD(d), GRADE: $("gradeSel").value, CLASS_NM: $("classSel").value, pSize: 100 });
-    const byPerio = {};
-    rows.forEach((r) => { if (r.ITRT_CNTNT) byPerio[r.PERIO] = r.ITRT_CNTNT; });
-    const perios = Object.keys(byPerio).sort((a, b) => +a - +b);
-    if (!perios.length) { $("ttOut").innerHTML = '<div class="muted">이 날짜·학년·반의 시간표 자료가 없습니다. 학년·반이 맞는지, 주말·방학은 아닌지 확인해 보세요.</div>'; return; }
-    $("ttOut").innerHTML = "<table><tbody>" + perios.map((p) => "<tr><th>" + esc(p) + "교시</th><td>" + esc(byPerio[p]) + "</td></tr>").join("") + "</tbody></table>";
-  } catch(e) {
-    $("ttOut").innerHTML = '<div class="muted">이 날짜·학년·반의 시간표 자료가 없습니다.</div>';
+  if (saved && saved[weekday] && saved[weekday].some(Boolean)) {
+    const subjects = saved[weekday];
+    $("ttOut").innerHTML = "<table><tbody>" +
+      subjects.map((s, i) => s ? "<tr><th>" + (i + 1) + "교시</th><td>" + esc(s) + "</td></tr>" : "").join("") + "</tbody></table>";
+    return;
   }
+  $("ttOut").innerHTML = '<div class="muted">직접 입력한 시간표가 없습니다. 아래에서 월~금 시간표를 입력하고 저장하세요.</div>';
 }
 
 function loadAll(){ loadMeal(); loadTimetable(); }
@@ -347,15 +338,11 @@ $("schoolQuery").addEventListener("keydown", (e) => { if (e.key === "Enter") sea
 $("loadBtn").onclick = () => { renderManualGrid(); loadAll(); };
 $("gradeSel").onchange = renderManualGrid;
 $("classSel").onchange = renderManualGrid;
-$("useManualChk").onchange = () => {
-  localStorage.setItem("todayUseManual", $("useManualChk").checked ? "1" : "0");
-  if (school) loadTimetable();
-};
 $("manualSaveBtn").onclick = saveManual;
 $("manualClearBtn").onclick = () => {
   localStorage.removeItem(manualKey());
   renderManualGrid();
-  $("manualOut").innerHTML = '<div class="muted">직접 입력한 시간표를 삭제했습니다. 이제 NEIS 시간표가 표시됩니다.</div>';
+  $("manualOut").innerHTML = '<div class="muted">직접 입력한 시간표를 삭제했습니다.</div>';
   if (school) loadTimetable();
 };
 $("weekBtn").onclick = loadWeek;
@@ -387,7 +374,6 @@ $("ddayAddBtn").onclick = () => {
   }
   renderSaved();
   renderDdays();
-  $("useManualChk").checked = localStorage.getItem("todayUseManual") === "1";
   renderManualGrid();
   if (school) loadAll();
 })();
