@@ -88,6 +88,18 @@ footer{color:#667085;font-size:12px;line-height:1.7;text-align:center;padding:20
     <div id="ttOut" class="muted">학교를 선택한 뒤 불러오기를 눌러주세요.</div>
   </section>
 
+  <section class="card" id="manualCard">
+    <h2>내 시간표 직접 입력</h2>
+    <p class="muted">NEIS 시간표가 학교 실제 시간표와 다르면 여기서 직접 입력하세요. 체크하면 NEIS보다 직접 입력한 시간표가 먼저 표시됩니다. 이 기기에만 저장됩니다.</p>
+    <div class="row">
+      <label style="display:flex;gap:8px;align-items:center;font-size:15px"><input id="useManualChk" type="checkbox" style="flex:none;min-width:18px;width:18px;height:18px"> 직접 입력한 시간표 사용하기</label>
+      <button id="manualSaveBtn" type="button">시간표 저장</button>
+      <button id="manualClearBtn" type="button" class="secondary small">직접 입력 삭제</button>
+    </div>
+    <div id="manualGrid" style="overflow-x:auto;margin-top:12px"></div>
+    <div id="manualOut" class="muted" style="margin-top:8px"></div>
+  </section>
+
   <section class="card">
     <h2>수행평가 · 시험 D-day</h2>
     <div class="row">
@@ -160,6 +172,7 @@ async function searchSchool(){
         renderSaved();
         $("searchOut").innerHTML = '<div class="ok">' + esc(school.name) + "을(를) 선택했습니다. 아래에서 급식·시간표를 불러오세요.</div>";
         updateShareUrl();
+        renderManualGrid();
         loadAll();
       };
     });
@@ -225,9 +238,56 @@ function ttEndpoint(){
   return "misTimetable";
 }
 
+function manualKey(){
+  return "manualTT_" + (school ? school.sd : "noschool") + "_" + $("gradeSel").value + "_" + $("classSel").value;
+}
+function loadManual(){
+  try { return JSON.parse(localStorage.getItem(manualKey()) || "null"); } catch(e) { return null; }
+}
+function renderManualGrid(){
+  const saved = loadManual() || {};
+  const days = ["월","화","수","목","금"];
+  let html = "<table><thead><tr><th></th>" + days.map((x) => "<th>" + x + "</th>").join("") + "</tr></thead><tbody>";
+  for (let p = 1; p <= 7; p++) {
+    html += "<tr><th>" + p + "교시</th>";
+    for (let d = 1; d <= 5; d++) {
+      const v = (saved[d] && saved[d][p - 1]) ? saved[d][p - 1] : "";
+      html += '<td><input type="text" data-day="' + d + '" data-perio="' + p + '" value="' + esc(v) + '" placeholder="" style="min-width:70px;padding:7px 8px;font-size:14px"></td>';
+    }
+    html += "</tr>";
+  }
+  html += "</tbody></table>";
+  $("manualGrid").innerHTML = html;
+}
+function saveManual(){
+  const data = {};
+  document.querySelectorAll("#manualGrid input").forEach((el) => {
+    const d = +el.dataset.day, p = +el.dataset.perio;
+    data[d] = data[d] || ["", "", "", "", "", "", ""];
+    data[d][p - 1] = el.value.trim();
+  });
+  localStorage.setItem(manualKey(), JSON.stringify(data));
+  $("manualOut").innerHTML = '<div class="ok">직접 입력한 시간표를 저장했습니다. 위 체크를 켜면 오늘 시간표에 이 표가 먼저 표시됩니다.</div>';
+  if ($("useManualChk").checked) loadTimetable();
+}
+
 async function loadTimetable(){
   if (!school) return;
   const d = fromInput($("dateInput").value);
+  if ($("useManualChk").checked) {
+    const saved = loadManual();
+    const weekday = d.getDay();
+    if (saved && weekday >= 1 && weekday <= 5 && saved[weekday] && saved[weekday].some(Boolean)) {
+      const subjects = saved[weekday];
+      $("ttOut").innerHTML = '<p class="muted" style="margin:0 0 8px">직접 입력한 시간표입니다. (NEIS 대신 표시)</p><table><tbody>' +
+        subjects.map((s, i) => s ? "<tr><th>" + (i + 1) + "교시</th><td>" + esc(s) + "</td></tr>" : "").join("") + "</tbody></table>";
+      return;
+    }
+    if (weekday === 0 || weekday === 6) {
+      $("ttOut").innerHTML = '<div class="muted">주말입니다. 직접 입력한 시간표에도 주말 시간표가 없습니다.</div>';
+      return;
+    }
+  }
   const sem = semesterFor(d);
   $("ttOut").innerHTML = "불러오는 중...";
   try {
@@ -284,7 +344,20 @@ function shiftDay(n){
 
 $("searchBtn").onclick = searchSchool;
 $("schoolQuery").addEventListener("keydown", (e) => { if (e.key === "Enter") searchSchool(); });
-$("loadBtn").onclick = loadAll;
+$("loadBtn").onclick = () => { renderManualGrid(); loadAll(); };
+$("gradeSel").onchange = renderManualGrid;
+$("classSel").onchange = renderManualGrid;
+$("useManualChk").onchange = () => {
+  localStorage.setItem("todayUseManual", $("useManualChk").checked ? "1" : "0");
+  if (school) loadTimetable();
+};
+$("manualSaveBtn").onclick = saveManual;
+$("manualClearBtn").onclick = () => {
+  localStorage.removeItem(manualKey());
+  renderManualGrid();
+  $("manualOut").innerHTML = '<div class="muted">직접 입력한 시간표를 삭제했습니다. 이제 NEIS 시간표가 표시됩니다.</div>';
+  if (school) loadTimetable();
+};
 $("weekBtn").onclick = loadWeek;
 $("prevDayBtn").onclick = () => shiftDay(-1);
 $("nextDayBtn").onclick = () => shiftDay(1);
@@ -314,6 +387,8 @@ $("ddayAddBtn").onclick = () => {
   }
   renderSaved();
   renderDdays();
+  $("useManualChk").checked = localStorage.getItem("todayUseManual") === "1";
+  renderManualGrid();
   if (school) loadAll();
 })();
 </script>
